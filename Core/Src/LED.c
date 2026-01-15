@@ -1,6 +1,5 @@
 #include "main.h"
 #include "RTCGet.h"
-#include "LED.h"
 
 #define highPin GPIO_PIN_SET
 
@@ -18,10 +17,12 @@ void LEDToggle(void)
 	{
 		*LEDStatus += 1;
 	}
+
+	*LEDStatus += 1;
 }
 
 // 每个数字需要2位
-void LEDTimeShow(int numShowIn)
+void LEDTimeShow()
 {
 	int timeNum = 0;
 	if(*LEDStatus == 1)
@@ -34,6 +35,7 @@ void LEDTimeShow(int numShowIn)
 	{
 		timeNum = getHour();
 		numShow = timeNum % 10;
+		HAL_GPIO_WritePin(dpSeg_GPIO_Port, dpSeg_Pin, highPin);
 	}
 	
 	else if(*LEDStatus == 3)
@@ -46,6 +48,7 @@ void LEDTimeShow(int numShowIn)
 	{
 		timeNum = getMin();
 		numShow = timeNum % 10;
+		HAL_GPIO_WritePin(dpSeg_GPIO_Port, dpSeg_Pin, highPin);
 	}
 	
 	else if(*LEDStatus == 5)
@@ -60,8 +63,6 @@ void LEDTimeShow(int numShowIn)
 		numShow = timeNum % 10;
 		
 	}
-	
-	numShow = numShowIn;
 
 	switch(numShow)
 	{

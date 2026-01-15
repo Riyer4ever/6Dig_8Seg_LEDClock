@@ -33,4 +33,3 @@
 6dig_8seg_ledclock\led.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 6dig_8seg_ledclock\led.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 6dig_8seg_ledclock\led.o: ../Core/Inc/RTCGet.h
-6dig_8seg_ledclock\led.o: ../Core/Inc/LED.h

@@ -15,6 +15,6 @@
  */
 
 void LEDToggle(void);
-void LEDTimeShow();
+void LEDTimeShow(void);
 
 #endif

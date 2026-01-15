@@ -9,20 +9,55 @@ int numShow = 0;
 void LEDToggle(void)
 {
 	// 重置显示的数码管，从6回到1
-	if(*LEDStatus == 6)
+	if(*LEDStatus == 0)
 	{
-		*LEDStatus = 1;
+		HAL_GPIO_WritePin(dig1_GPIO_Port, dig1_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(dig2_GPIO_Port, dig2_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(dig3_GPIO_Port, dig3_Pin, GPIO_PIN_SET);
+	}
+	else if(*LEDStatus == 1)
+	{
+		HAL_GPIO_WritePin(dig1_GPIO_Port, dig1_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(dig2_GPIO_Port, dig2_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(dig3_GPIO_Port, dig3_Pin, GPIO_PIN_SET);
+	}
+	else if(*LEDStatus == 2)
+	{
+		HAL_GPIO_WritePin(dig1_GPIO_Port, dig1_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(dig2_GPIO_Port, dig2_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(dig3_GPIO_Port, dig3_Pin, GPIO_PIN_SET);
+	}
+	else if(*LEDStatus == 3)
+	{
+		HAL_GPIO_WritePin(dig1_GPIO_Port, dig1_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(dig2_GPIO_Port, dig2_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(dig3_GPIO_Port, dig3_Pin, GPIO_PIN_SET);
+	}
+	else if(*LEDStatus == 4)
+	{
+		HAL_GPIO_WritePin(dig1_GPIO_Port, dig1_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(dig2_GPIO_Port, dig2_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(dig3_GPIO_Port, dig3_Pin, GPIO_PIN_RESET);
+	}
+	else if(*LEDStatus == 5)
+	{
+		HAL_GPIO_WritePin(dig1_GPIO_Port, dig1_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(dig2_GPIO_Port, dig2_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(dig3_GPIO_Port, dig3_Pin, GPIO_PIN_RESET);
+		*LEDStatus = -1; // 下次归零
 	}
 	else
 	{
-		*LEDStatus += 1;
+		HAL_GPIO_WritePin(dig1_GPIO_Port, dig1_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(dig2_GPIO_Port, dig2_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(dig3_GPIO_Port, dig3_Pin, GPIO_PIN_SET);
 	}
 
 	*LEDStatus += 1;
 }
 
 // 每个数字需要2位
-void LEDTimeShow()
+void LEDTimeShow(void)
 {
 	int timeNum = 0;
 	if(*LEDStatus == 1)

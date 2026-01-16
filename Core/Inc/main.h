@@ -63,6 +63,8 @@ void Error_Handler(void);
 #define dig2_GPIO_Port GPIOF
 #define dig3_Pin GPIO_PIN_8
 #define dig3_GPIO_Port GPIOF
+#define LEDTest_Pin GPIO_PIN_9
+#define LEDTest_GPIO_Port GPIOF
 #define aSeg_Pin GPIO_PIN_0
 #define aSeg_GPIO_Port GPIOC
 #define bSeg_Pin GPIO_PIN_1
@@ -75,21 +77,23 @@ void Error_Handler(void);
 #define eSeg_GPIO_Port GPIOC
 #define fSeg_Pin GPIO_PIN_5
 #define fSeg_GPIO_Port GPIOC
-#define key1_Pin GPIO_PIN_0
-#define key1_GPIO_Port GPIOG
-#define key2_Pin GPIO_PIN_1
-#define key2_GPIO_Port GPIOG
-#define key3_Pin GPIO_PIN_2
-#define key3_GPIO_Port GPIOG
-#define key4_Pin GPIO_PIN_3
-#define key4_GPIO_Port GPIOG
 #define gSeg_Pin GPIO_PIN_6
 #define gSeg_GPIO_Port GPIOC
 #define dpSeg_Pin GPIO_PIN_7
 #define dpSeg_GPIO_Port GPIOC
+#define key1_Pin GPIO_PIN_11
+#define key1_GPIO_Port GPIOG
+#define key1_EXTI_IRQn EXTI15_10_IRQn
+#define key2_Pin GPIO_PIN_12
+#define key2_GPIO_Port GPIOG
+#define key3_Pin GPIO_PIN_13
+#define key3_GPIO_Port GPIOG
+#define key4_Pin GPIO_PIN_14
+#define key4_GPIO_Port GPIOG
 
 /* USER CODE BEGIN Private defines */
-
+#define highPin GPIO_PIN_SET
+#define lowPin GPIO_PIN_RESET
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

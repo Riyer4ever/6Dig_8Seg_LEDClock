@@ -25,6 +25,7 @@
 #include "LED.h"
 #include "RTCGet.h"
 #include "LEDInit.h"
+// #include "LEDChange.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,8 +47,21 @@
 RTC_HandleTypeDef hrtc;
 
 TIM_HandleTypeDef htim6;
+TIM_HandleTypeDef htim10;
 
 /* USER CODE BEGIN PV */
+
+RTC_HandleTypeDef hrtc;
+TIM_HandleTypeDef htim6;
+
+int LEDStatusNum = 0;
+int *LEDStatus = &LEDStatusNum;
+
+RTC_TimeTypeDef TimeNum = {0};
+RTC_TimeTypeDef *Time = &TimeNum;
+
+int modeStatus = 0;
+int *modeOfLED = &modeStatus;
 
 /* USER CODE END PV */
 
@@ -56,13 +70,14 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_RTC_Init(void);
 static void MX_TIM6_Init(void);
+static void MX_TIM10_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int *LEDStatus;
+
 /* USER CODE END 0 */
 
 /**
@@ -96,10 +111,13 @@ int main(void)
   MX_GPIO_Init();
   MX_RTC_Init();
   MX_TIM6_Init();
+  MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
+  HAL_RTC_Init(&hrtc);
 	LEDInit();
-  HAL_TIM_Base_Start_IT(&htim6);
 
+  HAL_TIM_Base_Start_IT(&htim6);
+  HAL_TIM_Base_Start_IT(&htim10);
   
   /* USER CODE END 2 */
 
@@ -199,21 +217,21 @@ static void MX_RTC_Init(void)
 
   /** Initialize RTC and set the Time and Date
   */
-  sTime.Hours = 0x0;
-  sTime.Minutes = 0x0;
-  sTime.Seconds = 0x0;
+  sTime.Hours = 0;
+  sTime.Minutes = 0;
+  sTime.Seconds = 0;
   sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
   sTime.StoreOperation = RTC_STOREOPERATION_RESET;
-  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
+  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK)
   {
     Error_Handler();
   }
   sDate.WeekDay = RTC_WEEKDAY_MONDAY;
   sDate.Month = RTC_MONTH_JANUARY;
-  sDate.Date = 0x1;
-  sDate.Year = 0x0;
+  sDate.Date = 1;
+  sDate.Year = 0;
 
-  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
+  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK)
   {
     Error_Handler();
   }
@@ -241,7 +259,7 @@ static void MX_TIM6_Init(void)
 
   /* USER CODE END TIM6_Init 1 */
   htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 84;
+  htim6.Init.Prescaler = 83;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim6.Init.Period = 999;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
@@ -262,6 +280,37 @@ static void MX_TIM6_Init(void)
 }
 
 /**
+  * @brief TIM10 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM10_Init(void)
+{
+
+  /* USER CODE BEGIN TIM10_Init 0 */
+
+  /* USER CODE END TIM10_Init 0 */
+
+  /* USER CODE BEGIN TIM10_Init 1 */
+
+  /* USER CODE END TIM10_Init 1 */
+  htim10.Instance = TIM10;
+  htim10.Init.Prescaler = 167;
+  htim10.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim10.Init.Period = 999;
+  htim10.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim10.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim10) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM10_Init 2 */
+
+  /* USER CODE END TIM10_Init 2 */
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -277,18 +326,18 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOG_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOG_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOF, dig1_Pin|dig2_Pin|dig3_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOF, dig1_Pin|dig2_Pin|dig3_Pin|LEDTest_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, aSeg_Pin|bSeg_Pin|cSeg_Pin|dSeg_Pin
                           |eSeg_Pin|fSeg_Pin|gSeg_Pin|dpSeg_Pin, GPIO_PIN_SET);
 
-  /*Configure GPIO pins : dig1_Pin dig2_Pin dig3_Pin */
-  GPIO_InitStruct.Pin = dig1_Pin|dig2_Pin|dig3_Pin;
+  /*Configure GPIO pins : dig1_Pin dig2_Pin dig3_Pin LEDTest_Pin */
+  GPIO_InitStruct.Pin = dig1_Pin|dig2_Pin|dig3_Pin|LEDTest_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -303,11 +352,21 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : key1_Pin key2_Pin key3_Pin key4_Pin */
-  GPIO_InitStruct.Pin = key1_Pin|key2_Pin|key3_Pin|key4_Pin;
+  /*Configure GPIO pin : key1_Pin */
+  GPIO_InitStruct.Pin = key1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(key1_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : key2_Pin key3_Pin key4_Pin */
+  GPIO_InitStruct.Pin = key2_Pin|key3_Pin|key4_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
@@ -315,7 +374,27 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+//{
+//  if(htim->Instance == TIM6)
+//	{  
+//    LEDToggle();
+//	  LEDTimeShow();
+//  }
+//}
 
+/**
+ * key1外部中断，按下切换mode
+ * key2按下+1
+ * key3按下-1
+ * key4按下确认
+ */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	LEDInit();
+  HAL_GPIO_WritePin(dpSeg_GPIO_Port, dpSeg_Pin, GPIO_PIN_SET);
+	*modeOfLED += 1;
+}
 /* USER CODE END 4 */
 
 /**
